@@ -1,26 +1,28 @@
 #include "inc.h"
 
-// struct to hold necessary command line arguments
-struct ARG {
-    char algo[5];
-    int quantum;
-    char file_name[120];
-    FILE* file_ptr;
-};
 // global structure for easy access in main thread
 struct ARG arg;
 
 int main(int argc, char** argv) {
 
-    // CHECK ARGV INPUT
-    if(check_arg_input(argc, argv))
-        // if an error detected, exit program
-        exit(1);
+    // CHECK COMMAND LINE ARGUMENTS
+    if(checkArgInput(argc, argv))
+        exit(1);    // if an error detected, exit program
 
+    // CREATE / INIT DATA STRUCTURES (Ready_Q and IO_Q)
 
+    // CREATE THREE THREADS (FileRead_thread, CPU_scheduler_thread, IO_scheduler_thread)
 
+    // wait for threads to finish...
 
-    // print necessary statements after each thread finishes
+    // PRINT NECESSARY PERFORMANCE METRICS
+    printPerformance();
+
+    return 0;
+}
+
+// prints performance metrics generated from the emulated scheduler
+void printPerformance() {
     printf("\nInput File Name                 : %s\n", arg.file_name);
     printf("CPU Scheduling Algorithm        : %s", arg.algo);
     if(arg.quantum != 0)
@@ -29,13 +31,10 @@ int main(int argc, char** argv) {
         printf("\n");
     printf("Avg. Turnaround time            : \n");
     printf("Avg. Waiting time in ready queue: \n\n");
-
-    return 0;
 }
 
-int check_arg_input(int argc, char** argv) {
-    // program must have "-alg [FIFO | SJF | PR | RR], 
-    // [-quantum [integer(ms)]] -input [file_name]"
+// checks the inputted command line arguments and parses necessary info
+int checkArgInput(int argc, char** argv) {
     if(argc > 7 || argc < 5) {
         printf("\nERROR - INPROPER ARGUMENTS! -\n");
         printf("Please input: \"-alg [FIFO | SJF | PR | RR] [-quantum [integer(ms)]] -input [file_name]\"\n\n");
@@ -67,7 +66,6 @@ int check_arg_input(int argc, char** argv) {
                 printf("Quantum input \"%s\" is not a valid input!\n\n", argv[i+1]);
                 return 1;
             }
-
         }
         else if(strcmp(argv[i], "-input") == 0) {
             // search for file name, and attempt to open to read
