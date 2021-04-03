@@ -1,5 +1,5 @@
 CC = gcc
-FILES = main.c scheduling-algorithms.c
+FILES = main.c schedulingEmulator.c
 FLAGS = -Wall -Werror
 
 prog: $(FILES)
