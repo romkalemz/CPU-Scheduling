@@ -1,6 +1,6 @@
 CC = gcc
-FILES = main.c schedulingEmulator.c
-FLAGS = -Wall -Werror
+FILES = main.c fileReadThread.c cpuSchedulerThread.c ioSchedulerThread.c
+FLAGS = -Wall -Werror -pthread
 
 prog: $(FILES)
 	$(CC) -o prog $(FILES) $(FLAGS)

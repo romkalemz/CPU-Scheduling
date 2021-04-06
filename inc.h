@@ -37,4 +37,5 @@ struct PCB {
 int checkArgInput(int argc, char** argv);
 void printPerformance();
 
-// scheduling-algorithms.c functions
+// scheduling functions
+void *fileRead(void *args);
