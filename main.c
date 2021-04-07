@@ -71,7 +71,6 @@ int checkArgInput(int argc, char** argv) {
             }
         }
         else if(strcmp(argv[i], "-input") == 0) {
-            printf("---%s\n", argv[i+1]);
             // search for file name, and attempt to open to read
             arg.file_ptr = fopen(argv[i+1], "r");
             if(arg.file_ptr == NULL) {
