@@ -12,9 +12,12 @@ int main(int argc, char** argv) {
     // CREATE / INIT DATA STRUCTURES (Ready_Q and IO_Q)
 
     // CREATE THREE THREADS (FileRead_thread, CPU_scheduler_thread, IO_scheduler_thread)
+    pthread_t fileRead_thread;
+    void *fileRead_status = NULL;
+    pthread_create(&fileRead_thread, NULL, fileRead, &arg);
 
     // wait for threads to finish...
-
+    pthread_join(fileRead_thread, &fileRead_status);
     // PRINT NECESSARY PERFORMANCE METRICS
     printPerformance();
 
