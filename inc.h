@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 
 // struct to hold necessary command line arguments
 struct ARG {
@@ -27,8 +28,8 @@ struct ARG {
 // struct that holds necessary process info found in the inputted file
 struct PCB {
     int priority;
-    int totalBursts;
-    int *CPUburst, *IOBurst;    // stores cpu and io burst times read from file
+    int totalBursts, numCPUBursts, numIOBursts;
+    int *CPUBurst, *IOBurst;    // stores cpu and io burst times read from file
     struct timespec ts_begin, ts_end;
     struct PCB *prev, *next;     // pointers to prev and next PCB in a double linked list
 };
@@ -39,3 +40,6 @@ void printPerformance();
 
 // scheduling functions
 void *fileRead(void *args);
+
+// structure manipulation functions
+struct PCB *createPCB();
