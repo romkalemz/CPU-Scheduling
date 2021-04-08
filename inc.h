@@ -29,10 +29,16 @@ struct ARG {
 struct PCB {
     int priority;
     int totalBursts, numCPUBursts, numIOBursts;
+    int cpuIndex, ioIndex;
     int *CPUBurst, *IOBurst;    // stores cpu and io burst times read from file
     struct timespec ts_begin, ts_end;
     struct PCB *prev, *next;     // pointers to prev and next PCB in a double linked list
 };
+// global variables
+extern sem_t sem_read, sem_cpu, sem_io;
+extern struct PCB *ready_q_head, *io_q_head;
+extern int file_read_done, cpu_sch_done;
+extern int cpuBusy;
 
 // main.c functions
 int checkArgInput(int argc, char** argv);
@@ -40,6 +46,11 @@ void printPerformance();
 
 // scheduling functions
 void *fileRead(void *args);
+void *cpuSchedule();
+void *ioSchedule();
 
 // structure manipulation functions
 struct PCB *createPCB();
+struct PCB *push(struct PCB *first, struct PCB *newPCB);
+struct PCB *popQ(struct PCB *first);
+int isEmptyQ(struct PCB *first);
