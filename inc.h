@@ -59,4 +59,4 @@ struct PCB *popQ(struct PCB **first);
 int isEmptyQ(struct PCB *first);
 void printQ(struct PCB **head);
 void printNULL();
-struct PCB *popSJF(struct PCB **head);
+struct PCB *popSJF_or_popPR(struct PCB **head, int flag);

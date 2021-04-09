@@ -40,7 +40,7 @@ int isEmptyQ(struct PCB *first){
 
 void printQ(struct PCB **head) {
     if(*head != NULL)
-        printf("{ ID: %i, TotalBurstTime: %i }", (*head)->ID, (*head)->totalBurstTime);
+        printf("{ ID: %i, TotalBurstTime: %i, Priority: %i }", (*head)->ID, (*head)->totalBurstTime, (*head)->priority);
     else
         printNULL();
 
@@ -49,7 +49,7 @@ void printQ(struct PCB **head) {
         temp = temp -> next;
         printf(" --> ");
         if(temp != NULL) {
-            printf("{ ID: %i, TotalBurstTime: %i }", temp->ID, temp->totalBurstTime);
+            printf("{ ID: %i, TotalBurstTime: %i, Priority: %i }", temp->ID, temp->totalBurstTime, temp->priority);
         }
         else
             printNULL();
@@ -63,28 +63,36 @@ void printNULL() {
 }
 
 // find the PCB node that contains smallest totalBurstTime
-struct PCB *popSJF(struct PCB **head){
+struct PCB *popSJF_or_popPR(struct PCB **head, int flag){
     // check if only one item in the list, if so, just pop
     if((*head)->next == NULL)
         return popQ(head);
-    
-    struct PCB *temp = *head;           // use temp to traverse list
-    struct PCB *curr_shortest = temp;   // use curr_shortest to keep track of shortest burst time to return
 
-    // find shortest burst time in the list
+    struct PCB *temp = *head;           // use temp to traverse list
+    struct PCB *winner = temp;   // use curr_shortest to keep track of shortest burst time to return
+
+    // traverse list comparing properties of processes
     temp = temp -> next;
     while(temp != NULL) {
-        if(temp->totalBurstTime < curr_shortest->totalBurstTime)
-            curr_shortest = temp;
+        // this is SJF comparison
+        if(flag == 0) {
+            if(temp->totalBurstTime < winner->totalBurstTime)
+                winner = temp;
+        }
+        // this is RR comparison
+        else if(flag == 1) {
+            if(temp->priority > winner->priority)
+                winner = temp;
+        }
         temp = temp -> next;
     }
     // remove the node from list
-    if(curr_shortest->prev != NULL)
-        curr_shortest->prev->next = curr_shortest->next;
+    if(winner->prev != NULL)
+        winner->prev->next = winner->next;
     else
-        *head = curr_shortest->next;
-    if(curr_shortest->next != NULL)
-        curr_shortest->next->prev = curr_shortest->prev;
+        *head = winner->next;
+    if(winner->next != NULL)
+        winner->next->prev = winner->prev;
 
-    return curr_shortest;
+    return winner;
 }
