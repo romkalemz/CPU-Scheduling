@@ -1,8 +1,9 @@
 #include "inc.h"
 
 // create an initialized PCB node
-struct PCB *createPCB() {
+struct PCB *createPCB(int ID) {
     struct PCB *pcb = malloc(sizeof(struct PCB));
+    pcb->ID = ID;
     pcb->next = NULL;
     pcb-> prev = NULL;
     pcb-> cpuIndex = 0;
@@ -38,12 +39,60 @@ int isEmptyQ(struct PCB *first){
 }
 
 void printQ(struct PCB **head) {
-    printf("%p", *head);
+    if(*head != NULL)
+        printf("{ ID: %i, TotalBurstTime: %i, Priority: %i }", (*head)->ID, (*head)->totalBurstTime, (*head)->priority);
+    else
+        printNULL();
+
     struct PCB *temp = *head;
     while(temp != NULL) {
         temp = temp -> next;
-        printf(" --> %p", temp);
+        printf(" --> ");
+        if(temp != NULL) {
+            printf("{ ID: %i, TotalBurstTime: %i, Priority: %i }", temp->ID, temp->totalBurstTime, temp->priority);
+        }
+        else
+            printNULL();
     }
     printf("\n");
     return;
+}
+
+void printNULL() {
+    printf("{ NULL }");
+}
+
+// find the PCB node that contains smallest totalBurstTime
+struct PCB *popSJF_or_popPR(struct PCB **head, int flag){
+    // check if only one item in the list, if so, just pop
+    if((*head)->next == NULL)
+        return popQ(head);
+
+    struct PCB *temp = *head;           // use temp to traverse list
+    struct PCB *winner = temp;   // use curr_shortest to keep track of shortest burst time to return
+
+    // traverse list comparing properties of processes
+    temp = temp -> next;
+    while(temp != NULL) {
+        // this is SJF comparison
+        if(flag == 0) {
+            if(temp->totalBurstTime < winner->totalBurstTime)
+                winner = temp;
+        }
+        // this is RR comparison
+        else if(flag == 1) {
+            if(temp->priority > winner->priority)
+                winner = temp;
+        }
+        temp = temp -> next;
+    }
+    // remove the node from list
+    if(winner->prev != NULL)
+        winner->prev->next = winner->next;
+    else
+        *head = winner->next;
+    if(winner->next != NULL)
+        winner->next->prev = winner->prev;
+
+    return winner;
 }

@@ -27,8 +27,10 @@ struct ARG {
 // (Process Control Block)
 // struct that holds necessary process info found in the inputted file
 struct PCB {
+    int ID;
     int priority;
     int totalBursts, numCPUBursts, numIOBursts;
+    int totalBurstTime;         // all of the IO / CPU burst times added up
     int cpuIndex, ioIndex;
     int *CPUBurst, *IOBurst;    // stores cpu and io burst times read from file
     struct timespec ts_begin, ts_end;
@@ -51,8 +53,10 @@ void *cpuSchedule();
 void *ioSchedule();
 
 // structure manipulation functions
-struct PCB *createPCB();
+struct PCB *createPCB(int ID);
 void push(struct PCB **first, struct PCB *newPCB);
 struct PCB *popQ(struct PCB **first);
 int isEmptyQ(struct PCB *first);
 void printQ(struct PCB **head);
+void printNULL();
+struct PCB *popSJF_or_popPR(struct PCB **head, int flag);
