@@ -3,7 +3,6 @@
 // Read the inputted file, create (emulated) process, place in Ready_Q
 void *fileRead(void *args)
 {
-    printf("In fileRead thread\n");
     struct ARG *arg = args;
     struct PCB *curr_pcb;
     // read first line
@@ -84,17 +83,21 @@ void *fileRead(void *args)
         if (proc_command == true)
         {
             proc_command = false;
-            printf("Unlocking CPU -- priority: %i   total bursts: %i\n", curr_pcb->priority, curr_pcb->totalBursts);
-            printf("    CPU array: ");
+            printf("[FILE] Unlocking CPU -- priority: %i   total bursts: %i\n", curr_pcb->priority, curr_pcb->totalBursts);
+            printf("[FILE] CPU array: ");
             for (int i = 0; i < curr_pcb->numCPUBursts; i++)
                 printf("%i ", curr_pcb->CPUBurst[i]);
             printf("\n");
-            printf("    IO array : ");
+            printf("[FILE] IO array : ");
             for (int i = 0; i < curr_pcb->numIOBursts; i++)
                 printf("%i ", curr_pcb->IOBurst[i]);
             printf("\n");
             //push pcb into ready_q
-            ready_q_head = push(ready_q_head, curr_pcb);
+            //printf("    [attempting to push to readyQ] %p\n", curr_pcb);
+            //printf("        [BEFORE] "); printQ(&ready_q_head);
+            clock_gettime(CLOCK_MONOTONIC, &curr_pcb->ts_begin);
+            push(&ready_q_head, curr_pcb);
+            //printf("        [AFTER] ");  printQ(&ready_q_head);
             // allow sem_cpu to proceed
             if (sem_post(&sem_cpu) == -1)
             {

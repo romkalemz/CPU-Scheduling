@@ -5,7 +5,7 @@ struct ARG arg;
 struct PCB *ready_q_head, *io_q_head;
 sem_t sem_read, sem_cpu, sem_io;
 int file_read_done, cpu_sch_done;
-int cpuBusy;
+int cpuBusy, ioBusy;
 // struct timespec ts;
 int main(int argc, char** argv) {
     int r;
@@ -19,6 +19,7 @@ int main(int argc, char** argv) {
     file_read_done = 0;
     cpu_sch_done = 0;
     cpuBusy = 0;
+    ioBusy = 0;
     // CREATE THREE THREADS (FileRead_thread, CPU_scheduler_thread, IO_scheduler_thread)
     if (sem_init(&sem_read, 0, 1) == -1)
     {

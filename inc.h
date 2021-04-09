@@ -38,7 +38,7 @@ struct PCB {
 extern sem_t sem_read, sem_cpu, sem_io;
 extern struct PCB *ready_q_head, *io_q_head;
 extern int file_read_done, cpu_sch_done;
-extern int cpuBusy;
+extern int cpuBusy, ioBusy;
 
 // main.c functions
 int checkArgInput(int argc, char** argv);
@@ -51,6 +51,7 @@ void *ioSchedule();
 
 // structure manipulation functions
 struct PCB *createPCB();
-struct PCB *push(struct PCB *first, struct PCB *newPCB);
-struct PCB *popQ(struct PCB *first);
+void push(struct PCB **first, struct PCB *newPCB);
+struct PCB *popQ(struct PCB **first);
 int isEmptyQ(struct PCB *first);
+void printQ(struct PCB **head);

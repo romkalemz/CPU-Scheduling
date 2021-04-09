@@ -5,9 +5,12 @@ void *cpuSchedule()
 {
     int s;
     struct timespec ts;
-    printf("In cpuSchedule thread\n");
     while (1)
     {
+        if(file_read_done == 1 && !ioBusy && !isEmptyQ(ready_q_head) && !isEmptyQ(io_q_head)){
+           cpu_sch_done = 1;
+            break;
+        }
          // get system clock set it to ts var
         if (clock_gettime(CLOCK_REALTIME, &ts) == -1)
         {
@@ -17,7 +20,7 @@ void *cpuSchedule()
         // add one second to curr time
         ts.tv_sec += 1;
 
-        printf("cpuSchedule() about to call sem_timedwait()\n");
+        printf("[CPU]  cpuSchedule() about to call sem_timedwait()\n");
         // wait until sem_read is avaible or 1 second passes (should be since sem_read is init. with 1 )
         while ((s = sem_timedwait(&sem_cpu, &ts)) == -1 && errno == EINTR)
             continue; /* Restart if interrupted by handler */
@@ -25,32 +28,39 @@ void *cpuSchedule()
         {
             if (errno == ETIMEDOUT)
             {
-                printf("sem_timedwait() timed out\n");
+                printf("[CPU]  sem_timedwait() timed out\n");
             }
             else
             {
-                perror("sem_timedwait");
+                perror("[CPU]  sem_timedwait");
                 exit(EXIT_FAILURE);
             }
         }
         else
         {
-            printf("cpu sem_timedwait() succeeded\n");
+            printf("[CPU]  cpu sem_timedwait() succeeded\n");
         }
         cpuBusy = 1;
-        struct PCB *temp = popQ(ready_q_head);
-        printf("CPU burst for: %d\n", temp->CPUBurst[temp->cpuIndex]);
+        //printf("    [attempting to pop from readyQ]\n");
+        //printf("        [BEFORE] "); printQ(&ready_q_head);
+        struct PCB *temp = popQ(&ready_q_head);
+        //printf("        [AFTER] ");  printQ(&ready_q_head);
+        printf("[CPU]  CPU burst for: %d\n", temp->CPUBurst[temp->cpuIndex]);
         usleep(temp->CPUBurst[temp->cpuIndex]);
         temp->cpuIndex++;
 
         if (temp->cpuIndex == temp->numCPUBursts)
         {
-            cpu_sch_done = 1;
-            break;
+            cpuBusy = 0;
+            free(temp);
         }
         else
         {
-            io_q_head = push(io_q_head, temp);
+            temp->next = NULL;
+            //printf("    [attempting to push into ioQ] %p\n", temp);
+            //printf("        [BEFORE] "); printQ(&io_q_head);
+            push(&io_q_head, temp);
+            //printf("        [AFTER] ");  printQ(&io_q_head);
             cpuBusy = 0;
             // increment sem_io, allows ioSchedule to proceed
             if (sem_post(&sem_io) == -1)

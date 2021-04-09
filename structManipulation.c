@@ -10,25 +10,23 @@ struct PCB *createPCB() {
     return pcb;
 };
 
-struct PCB *push(struct PCB *first, struct PCB * newPCB){
-    struct PCB *temp = first;
-    if(first == NULL){
-        return newPCB;
+void push(struct PCB **first, struct PCB *newPCB){
+    if(*first == NULL){
+        *first = newPCB;
+        return;
     }
-    while(temp->next != NULL){
+    struct PCB *temp = *first;
+    while(temp -> next != NULL) {
         temp = temp -> next;
-       // printf("pushpcb function: %d\n", temp ->priority);
     }
     temp->next = newPCB;
+    newPCB->next = NULL;
     newPCB->prev = temp;
-
-    return first;
 }
 // returns first in pcb and removes from q
-struct PCB *popQ(struct PCB *first){
-    struct PCB *temp;
-    temp = first;
-    first = temp -> next;
+struct PCB *popQ(struct PCB **first){
+    struct PCB *temp = *first;
+    *first = temp -> next;
     return temp;
 }
 // checks if empty (whenr ready_q or io_q = null)
@@ -37,4 +35,15 @@ int isEmptyQ(struct PCB *first){
         return 0;
     }
     return 1;
+}
+
+void printQ(struct PCB **head) {
+    printf("%p", *head);
+    struct PCB *temp = *head;
+    while(temp != NULL) {
+        temp = temp -> next;
+        printf(" --> %p", temp);
+    }
+    printf("\n");
+    return;
 }
