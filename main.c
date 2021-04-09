@@ -2,23 +2,81 @@
 
 // global structure for easy access in main thread
 struct ARG arg;
-
+struct PCB *ready_q_head, *io_q_head;
+sem_t sem_read, sem_cpu, sem_io;
+int file_read_done, cpu_sch_done;
+int cpuBusy, ioBusy;
+// struct timespec ts;
 int main(int argc, char** argv) {
-
+    int r;
     // CHECK COMMAND LINE ARGUMENTS
     if(checkArgInput(argc, argv))
         exit(1);    // if an error detected, exit program
 
     // CREATE / INIT DATA STRUCTURES (Ready_Q and IO_Q)
-
+    ready_q_head = NULL;
+    io_q_head = NULL;
+    file_read_done = 0;
+    cpu_sch_done = 0;
+    cpuBusy = 0;
+    ioBusy = 0;
     // CREATE THREE THREADS (FileRead_thread, CPU_scheduler_thread, IO_scheduler_thread)
-    pthread_t fileRead_thread;
-    void *fileRead_status = NULL;
-    pthread_create(&fileRead_thread, NULL, fileRead, &arg);
-
-    // wait for threads to finish...
-    pthread_join(fileRead_thread, &fileRead_status);
-    // PRINT NECESSARY PERFORMANCE METRICS
+    if (sem_init(&sem_read, 0, 1) == -1)
+    {
+        fprintf(stderr, "error: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
+    if (sem_init(&sem_cpu, 0, 0) == -1)
+    {
+        fprintf(stderr, "error: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
+    if (sem_init(&sem_io, 0, 0) == -1)
+    {
+        fprintf(stderr, "error: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
+    pthread_t thread_id[3];
+    if ((r = pthread_create(&thread_id[0], NULL, fileRead, &arg)) != 0)
+    {
+        fprintf(stderr, "Error = %d (%s)\n", r, strerror(r));
+        return EXIT_FAILURE;
+    }
+    if ((r = pthread_create(&thread_id[1], NULL, cpuSchedule, NULL)) != 0)
+    {
+        fprintf(stderr, "Error = %d (%s)\n", r, strerror(r));
+        return EXIT_FAILURE;
+    }
+    if ((r = pthread_create(&thread_id[2], NULL, ioSchedule, NULL)) != 0)
+    {
+        fprintf(stderr, "Error = %d (%s)\n", r, strerror(r));
+        return EXIT_FAILURE;
+    }
+    // join all threads/terminate
+    for (int i = 0; i < 3; i++)
+    {
+        if ((r = pthread_join(thread_id[i], NULL)) == -1)
+        {
+            fprintf(stderr, "Error = %d (%s)\n", r, strerror(r));
+            return EXIT_FAILURE;
+        }
+    }
+    // destroy the semaphores
+    if (sem_destroy(&sem_read) == -1)
+    {
+        fprintf(stderr, "error: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
+    if (sem_destroy(&sem_cpu) == -1)
+    {
+        fprintf(stderr, "error: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
+    if (sem_destroy(&sem_io) == -1)
+    {
+        fprintf(stderr, "error: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
     printPerformance();
 
     return 0;
