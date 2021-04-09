@@ -6,6 +6,7 @@ struct PCB *ready_q_head, *io_q_head;
 sem_t sem_read, sem_cpu, sem_io;
 int file_read_done, cpu_sch_done;
 int cpuBusy, ioBusy;
+double elapsed, total_throughput, total_waiting_time, total_turnaround_time, total_num_processes;
 // struct timespec ts;
 int main(int argc, char** argv) {
     int r;
@@ -20,6 +21,10 @@ int main(int argc, char** argv) {
     cpu_sch_done = 0;
     cpuBusy = 0;
     ioBusy = 0;
+    total_throughput = 0;
+    total_waiting_time = 0;
+    total_turnaround_time = 0;
+    total_num_processes = 0;
     // CREATE THREE THREADS (FileRead_thread, CPU_scheduler_thread, IO_scheduler_thread)
     if (sem_init(&sem_read, 0, 1) == -1)
     {
@@ -90,8 +95,9 @@ void printPerformance() {
         printf(" (%i ms)\n", arg.quantum);
     else
         printf("\n");
-    printf("Avg. Turnaround time            : \n");
-    printf("Avg. Waiting time in ready queue: \n\n");
+    printf("Throughput                      : %.3lf ms\n", total_turnaround_time / 100);
+    printf("Avg. Turnaround time            : %.1lf ms\n", (total_turnaround_time / total_num_processes) * 1000);
+    printf("Avg. Waiting time in ready queue: %.3lf ms\n\n", (total_waiting_time / total_num_processes) * 100);
 }
 
 // checks the inputted command line arguments and parses necessary info

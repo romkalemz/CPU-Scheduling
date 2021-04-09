@@ -20,7 +20,7 @@ void *cpuSchedule()
         // add one second to curr time
         ts.tv_sec += 1;
 
-        printf("[CPU]  cpuSchedule() about to call sem_timedwait()\n");
+        //printf("[CPU]  cpuSchedule() about to call sem_timedwait()\n");
         // wait until sem_read is avaible or 1 second passes (should be since sem_read is init. with 1 )
         while ((s = sem_timedwait(&sem_cpu, &ts)) == -1 && errno == EINTR)
             continue; /* Restart if interrupted by handler */
@@ -38,19 +38,27 @@ void *cpuSchedule()
         }
         else
         {
-            printf("[CPU]  cpu sem_timedwait() succeeded\n");
+            //printf("[CPU]  cpu sem_timedwait() succeeded\n");
         }
         cpuBusy = 1;
         //printf("    [attempting to pop from readyQ]\n");
         //printf("        [BEFORE] "); printQ(&ready_q_head);
         struct PCB *temp = popQ(&ready_q_head);
         //printf("        [AFTER] ");  printQ(&ready_q_head);
-        printf("[CPU]  CPU burst for: %d\n", temp->CPUBurst[temp->cpuIndex]);
+        //printf("[CPU]  CPU burst for: %d\n", temp->CPUBurst[temp->cpuIndex]);
         usleep(temp->CPUBurst[temp->cpuIndex]);
         temp->cpuIndex++;
 
         if (temp->cpuIndex == temp->numCPUBursts)
         {
+            // record necessary system clock times for report
+            clock_gettime(CLOCK_MONOTONIC, &temp->ts_end);
+            elapsed = temp->ts_end.tv_sec - temp->ts_begin.tv_sec;
+            elapsed += (temp->ts_end.tv_nsec - temp->ts_begin.tv_nsec) / 1000000000.0;
+            total_num_processes += 1;
+            total_turnaround_time += (elapsed * 1000);
+            total_waiting_time += (elapsed * 1000) - ((float) temp->CPUBurst[temp->cpuIndex] / 1000);
+
             cpuBusy = 0;
             free(temp);
         }
