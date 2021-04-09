@@ -8,6 +8,8 @@ void *fileRead(void *args)
     // read first line
     bool proc_command = false;
     char *word, *lineptr = NULL;
+    int total_burst_time = 0;       // keep track of total burst times of IO and CPU for SJF alg
+    int line_count = 1;             // keep track of lines to use for ID the PCB Nodes
     size_t linenum = 0;
     ssize_t num_chars_inline = getline(&lineptr, &linenum, arg->file_ptr);
     // while NOT at the end of file...
@@ -31,7 +33,8 @@ void *fileRead(void *args)
                 // be ready to push into ready_Q once proc command finishes (no more numbers in the line)
                 proc_command = true;
                 // create PCB structure
-                curr_pcb = createPCB();
+                curr_pcb = createPCB(line_count);
+                line_count++;
             }
 
             // if the command is sleep
@@ -60,6 +63,7 @@ void *fileRead(void *args)
             // this is the number of total bursts in the proc command
             else if (i == -1)
             {
+                total_burst_time = 0;
                 curr_pcb->totalBursts = atoi(word);
                 curr_pcb->numCPUBursts = ceil((double)curr_pcb->totalBursts / 2);
                 curr_pcb->numIOBursts = floor((double)curr_pcb->totalBursts / 2);
@@ -74,6 +78,7 @@ void *fileRead(void *args)
                     curr_pcb->CPUBurst[i / 2] = atoi(word);
                 else // odd numbers are IO
                     curr_pcb->IOBurst[i / 2] = atoi(word);
+                total_burst_time += atoi(word);
             }
 
             word = strtok(NULL, " ");
@@ -83,6 +88,7 @@ void *fileRead(void *args)
         if (proc_command == true)
         {
             proc_command = false;
+            curr_pcb->totalBurstTime = total_burst_time;
             // printf("[FILE] Unlocking CPU -- priority: %i   total bursts: %i\n", curr_pcb->priority, curr_pcb->totalBursts);
             // printf("[FILE] CPU array: ");
             // for (int i = 0; i < curr_pcb->numCPUBursts; i++)

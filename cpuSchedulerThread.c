@@ -1,8 +1,9 @@
 #include "inc.h"
 // CPU_scheduler_thread
 // Emulate by sleeping for given CPU burst time, then release, and place in IO_Q
-void *cpuSchedule()
+void *cpuSchedule(void *args)
 {
+    struct ARG *arg = args;
     int s;
     struct timespec ts;
     while (1)
@@ -11,7 +12,7 @@ void *cpuSchedule()
            cpu_sch_done = 1;
             break;
         }
-         // get system clock set it to ts var
+        // get system clock set it to ts var
         if (clock_gettime(CLOCK_REALTIME, &ts) == -1)
         {
             perror("clock_gettime");
@@ -40,11 +41,25 @@ void *cpuSchedule()
         {
             //printf("[CPU]  cpu sem_timedwait() succeeded\n");
         }
+        struct PCB *temp;
         cpuBusy = 1;
-        //printf("    [attempting to pop from readyQ]\n");
-        //printf("        [BEFORE] "); printQ(&ready_q_head);
-        struct PCB *temp = popQ(&ready_q_head);
-        //printf("        [AFTER] ");  printQ(&ready_q_head);
+        // check what algorithm we are using
+        printf("    [attempting to pop from readyQ]\n");
+        printf("        [BEFORE] "); printQ(&ready_q_head);
+        if(strcmp(arg->algo, "FIFO") == 0) {
+            temp = popQ(&ready_q_head);
+        }
+        else if(strcmp(arg->algo, "SJF") == 0) {
+            temp = popSJF(&ready_q_head);
+        }
+        else if(strcmp(arg->algo, "RR") == 0) {
+            
+        }
+        else if(strcmp(arg->algo, "PR") == 0) {
+            
+        }
+        
+        printf("        [AFTER]  ");  printQ(&ready_q_head);
         //printf("[CPU]  CPU burst for: %d\n", temp->CPUBurst[temp->cpuIndex]);
         usleep(temp->CPUBurst[temp->cpuIndex]);
         temp->cpuIndex++;

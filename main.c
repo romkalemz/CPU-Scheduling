@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Error = %d (%s)\n", r, strerror(r));
         return EXIT_FAILURE;
     }
-    if ((r = pthread_create(&thread_id[1], NULL, cpuSchedule, NULL)) != 0)
+    if ((r = pthread_create(&thread_id[1], NULL, cpuSchedule, &arg)) != 0)
     {
         fprintf(stderr, "Error = %d (%s)\n", r, strerror(r));
         return EXIT_FAILURE;

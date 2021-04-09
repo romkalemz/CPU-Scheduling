@@ -1,8 +1,9 @@
 #include "inc.h"
 
 // create an initialized PCB node
-struct PCB *createPCB() {
+struct PCB *createPCB(int ID) {
     struct PCB *pcb = malloc(sizeof(struct PCB));
+    pcb->ID = ID;
     pcb->next = NULL;
     pcb-> prev = NULL;
     pcb-> cpuIndex = 0;
@@ -38,12 +39,52 @@ int isEmptyQ(struct PCB *first){
 }
 
 void printQ(struct PCB **head) {
-    printf("%p", *head);
+    if(*head != NULL)
+        printf("{ ID: %i, TotalBurstTime: %i }", (*head)->ID, (*head)->totalBurstTime);
+    else
+        printNULL();
+
     struct PCB *temp = *head;
     while(temp != NULL) {
         temp = temp -> next;
-        printf(" --> %p", temp);
+        printf(" --> ");
+        if(temp != NULL) {
+            printf("{ ID: %i, TotalBurstTime: %i }", temp->ID, temp->totalBurstTime);
+        }
+        else
+            printNULL();
     }
     printf("\n");
     return;
+}
+
+void printNULL() {
+    printf("{ NULL }");
+}
+
+// find the PCB node that contains smallest totalBurstTime
+struct PCB *popSJF(struct PCB **head){
+    // check if only one item in the list, if so, just pop
+    if((*head)->next == NULL)
+        return popQ(head);
+    
+    struct PCB *temp = *head;           // use temp to traverse list
+    struct PCB *curr_shortest = temp;   // use curr_shortest to keep track of shortest burst time to return
+
+    // find shortest burst time in the list
+    temp = temp -> next;
+    while(temp != NULL) {
+        if(temp->totalBurstTime < curr_shortest->totalBurstTime)
+            curr_shortest = temp;
+        temp = temp -> next;
+    }
+    // remove the node from list
+    if(curr_shortest->prev != NULL)
+        curr_shortest->prev->next = curr_shortest->next;
+    else
+        *head = curr_shortest->next;
+    if(curr_shortest->next != NULL)
+        curr_shortest->next->prev = curr_shortest->prev;
+
+    return curr_shortest;
 }
