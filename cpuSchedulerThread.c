@@ -44,20 +44,20 @@ void *cpuSchedule(void *args)
         struct PCB *temp;
         cpuBusy = 1;
         // check what algorithm we are using
-        printf("    [attempting to pop from readyQ]\n");
-        printf("        [BEFORE] "); printQ(&ready_q_head);
+        //printf("    [attempting to pop from readyQ]\n");
+        //printf("        [BEFORE] "); printQ(&ready_q_head);
         if(strcmp(arg->algo, "FIFO") == 0)
             temp = popQ(&ready_q_head);
         
         else if(strcmp(arg->algo, "SJF") == 0) 
-            temp = popSJF_or_popRR(&ready_q_head, 0);
+            temp = popSJF_or_popPR(&ready_q_head, 0);
         
         else if(strcmp(arg->algo, "RR") == 0) 
-            temp = popSJF_or_popRR(&ready_q_head, 1);
+            temp = popSJF_or_popPR(&ready_q_head, 1);
         
         else if(strcmp(arg->algo, "PR") == 0) {}
         
-        printf("        [AFTER]  ");  printQ(&ready_q_head);
+        //printf("        [AFTER]  ");  printQ(&ready_q_head);
         //printf("[CPU]  CPU burst for: %d\n", temp->CPUBurst[temp->cpuIndex]);
         usleep(temp->CPUBurst[temp->cpuIndex]);
         temp->cpuIndex++;
