@@ -6,6 +6,7 @@ struct PCB *ready_q_head, *io_q_head;
 sem_t sem_read, sem_cpu, sem_io, sem_mutex;
 int file_read_done, cpu_sch_done;
 int cpuBusy, ioBusy;
+int isAlgRR;
 double elapsed, total_throughput, total_waiting_time, total_turnaround_time, total_num_processes;
 // struct timespec ts;
 int main(int argc, char** argv) {
@@ -25,6 +26,7 @@ int main(int argc, char** argv) {
     total_waiting_time = 0;
     total_turnaround_time = 0;
     total_num_processes = 0;
+    isAlgRR = 0;
     // CREATE THREE THREADS (FileRead_thread, CPU_scheduler_thread, IO_scheduler_thread)
     if (sem_init(&sem_mutex, 0, 1) == -1)
     {
@@ -136,6 +138,7 @@ int checkArgInput(int argc, char** argv) {
            }
            if(strcmp(argv[i+1], "RR") == 0){
                isRR = 1;
+               isAlgRR = 1;
            }
         } 
         else if(strcmp(argv[i], "-quantum") == 0) {

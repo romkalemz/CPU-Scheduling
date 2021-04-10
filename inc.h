@@ -43,7 +43,7 @@ extern struct PCB *ready_q_head, *io_q_head;
 extern int file_read_done, cpu_sch_done;
 extern int cpuBusy, ioBusy;
 extern double elapsed, total_throughput, total_waiting_time, total_turnaround_time, total_num_processes;
-
+extern int isAlgRR;
 // main.c functions
 int checkArgInput(int argc, char** argv);
 void printPerformance();

@@ -49,7 +49,10 @@ void *ioSchedule()
         if (isEmptyQ(io_q_head) == 1)
         {
             struct PCB *temp = popQ(&io_q_head);
-            usleep(temp->IOBurst[temp->ioIndex]);
+            // don't sleep if RR
+            if(isAlgRR == 0){
+               usleep(temp->IOBurst[temp->ioIndex]);
+            }
             temp->ioIndex++;
             push(&ready_q_head, temp);
             //printf("        [AFTER] ");  printQ(&ready_q_head);
