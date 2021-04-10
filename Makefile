@@ -4,3 +4,6 @@ FLAGS = -Wall -Werror -pthread -lm -lrt
 
 prog: $(FILES)
 	$(CC) -o prog $(FILES) $(FLAGS)
+
+clean:
+	rm prog
