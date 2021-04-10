@@ -5,6 +5,8 @@ void *cpuSchedule(void *args)
 {
     struct ARG *arg = args;
     int s;
+    int isRR = 0;
+    int doneRR = 0;
     struct timespec ts;
     while (1)
     {
@@ -54,17 +56,27 @@ void *cpuSchedule(void *args)
         else if (strcmp(arg->algo, "SJF") == 0)
             temp = popSJF_or_popPR(&ready_q_head, 0);
 
-        else if (strcmp(arg->algo, "RR") == 0)
-            temp = popSJF_or_popPR(&ready_q_head, 1);
-
+        else if (strcmp(arg->algo, "RR") == 0){
+            isRR = 1;
+            temp = popQ(&ready_q_head);
+            if(temp -> cpuTime > temp -> quantumTime){
+                usleep(temp -> quantumTime);
+                temp -> cpuTime -= temp -> quantumTime;
+            } else {
+                usleep(temp -> cpuTime);
+                temp -> cpuTime = 0;
+                doneRR = 1;
+            }
+        }
         else if (strcmp(arg->algo, "PR") == 0)
         {
+            temp = popSJF_or_popPR(&ready_q_head, 1);
         }
-
-        usleep(temp->CPUBurst[temp->cpuIndex]);
-        temp->cpuIndex++;
-
-        if (temp->cpuIndex == temp->numCPUBursts)
+        if(isRR == 0){
+            usleep(temp->CPUBurst[temp->cpuIndex]);
+            temp->cpuIndex++;
+        }
+        if (temp->cpuIndex == temp->numCPUBursts || doneRR == 1)
         {
             // record necessary system clock times for report
             clock_gettime(CLOCK_MONOTONIC, &temp->ts_end);
@@ -73,22 +85,22 @@ void *cpuSchedule(void *args)
             total_num_processes += 1;
             total_turnaround_time += (elapsed * 1000);
             total_waiting_time += (elapsed * 1000) - ((float)temp->CPUBurst[temp->cpuIndex] / 1000);
-
+            cpuBusy = 0;
             free(temp);
         }
         else
         {
             temp->next = NULL;
             push(&io_q_head, temp);
+            cpuBusy = 0;
         }
-        cpuBusy = 0;
         // increment sem_io, allows ioSchedule to proceed
-        if (sem_post(&sem_read) == -1)
+        if (sem_post(&sem_io) == -1)
         {
             fprintf(stderr, "error: %s\n", strerror(errno));
             exit(EXIT_FAILURE);
         }
-        if (sem_post(&sem_io) == -1)
+        if (sem_post(&sem_read) == -1)
         {
             fprintf(stderr, "error: %s\n", strerror(errno));
             exit(EXIT_FAILURE);

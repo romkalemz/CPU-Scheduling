@@ -52,14 +52,15 @@ void *ioSchedule()
             usleep(temp->IOBurst[temp->ioIndex]);
             temp->ioIndex++;
             push(&ready_q_head, temp);
+            //printf("        [AFTER] ");  printQ(&ready_q_head);
+            if (sem_post(&sem_cpu) == -1)
+            {
+                fprintf(stderr, "error: %s\n", strerror(errno));
+                exit(EXIT_FAILURE);
+            }
         }
         ioBusy = 0;
         // increment sem_cpu, allows cpuSchedule to proceed
-        if (sem_post(&sem_cpu) == -1)
-        {
-            fprintf(stderr, "error: %s\n", strerror(errno));
-            exit(EXIT_FAILURE);
-        }
     }
     return NULL;
 }

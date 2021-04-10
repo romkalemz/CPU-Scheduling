@@ -78,7 +78,7 @@ struct PCB *popSJF_or_popPR(struct PCB **head, int flag){
             if(temp->totalBurstTime < winner->totalBurstTime)
                 winner = temp;
         }
-        // this is RR comparison
+        // this is PR comparison
         else if(flag == 1) {
             if(temp->priority > winner->priority)
                 winner = temp;

@@ -29,6 +29,7 @@ struct ARG {
 struct PCB {
     int ID;
     int priority;
+    int quantumTime, cpuTime;
     int totalBursts, numCPUBursts, numIOBursts;
     int totalBurstTime;         // all of the IO / CPU burst times added up
     int cpuIndex, ioIndex;
