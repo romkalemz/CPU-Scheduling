@@ -1,19 +1,20 @@
 # CPU-Scheduling
-# CS 460 Group Project 3
+CS 460 Group Project 3
+Spring Semester 2021
 
-CREATORS:
+# CREATORS:
   Roman Stolyarov
   David Barko
   Daniel Yarmolenko
   
 
-DESCRIPTION:
+# DESCRIPTION:
   This program is a multi-threaded algorithm that measures the performance of the four basic
   CPU algorithms (FCFS, SJF, PR, RR) by simulating the processes of a CPU and an IO device
   that sleeps for the given corresponding burst-times by an input file.  
 
 
-COMPILE / RUN INSTRUCTIONS:
+# COMPILE / RUN INSTRUCTIONS:
 - to compile:
     "make"
 
@@ -21,7 +22,7 @@ COMPILE / RUN INSTRUCTIONS:
     "./prog -alg [FIFO | SJF | PR | RR] [-quantum [integer (ms) ]] -input [file name]"
 
 
-FILES INCLUDED:
+# FILES INCLUDED:
 - main.c
     This file contains the main thread that creates the scheduler handling threads
     as well as the necessary variables and semaphores used in other files.
