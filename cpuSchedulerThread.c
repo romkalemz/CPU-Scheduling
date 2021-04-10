@@ -23,7 +23,6 @@ void *cpuSchedule(void *args)
         // add one second to curr time
         ts.tv_sec += 1;
 
-        //printf("[CPU]  cpuSchedule() about to call sem_timedwait()\n");
         // wait until sem_read is avaible or 1 second passes (should be since sem_read is init. with 1 )
         while ((s = sem_timedwait(&sem_cpu, &ts)) == -1 && errno == EINTR)
             continue; /* Restart if interrupted by handler */
@@ -39,10 +38,7 @@ void *cpuSchedule(void *args)
                 exit(EXIT_FAILURE);
             }
         }
-        else
-        {
-            //printf("[CPU]  cpu sem_timedwait() succeeded\n");
-        }
+
         if (sem_wait(&sem_mutex) == -1)
         {
             perror("sem_wait: mutex_sem");
@@ -50,9 +46,8 @@ void *cpuSchedule(void *args)
         }
         struct PCB *temp;
         cpuBusy = 1;
+
         // check what algorithm we are using
-        //printf("    [attempting to pop from readyQ]\n");
-        //printf("        [BEFORE] "); printQ(&ready_q_head);
         if (strcmp(arg->algo, "FIFO") == 0)
             temp = popQ(&ready_q_head);
 
@@ -66,8 +61,6 @@ void *cpuSchedule(void *args)
         {
         }
 
-        //printf("        [AFTER]  ");  printQ(&ready_q_head);
-        //printf("[CPU]  CPU burst for: %d\n", temp->CPUBurst[temp->cpuIndex]);
         usleep(temp->CPUBurst[temp->cpuIndex]);
         temp->cpuIndex++;
 
@@ -86,10 +79,7 @@ void *cpuSchedule(void *args)
         else
         {
             temp->next = NULL;
-            //printf("    [attempting to push into ioQ] %p\n", temp);
-            //printf("        [BEFORE] "); printQ(&io_q_head);
             push(&io_q_head, temp);
-            //printf("        [AFTER] ");  printQ(&io_q_head);
         }
         cpuBusy = 0;
         // increment sem_io, allows ioSchedule to proceed

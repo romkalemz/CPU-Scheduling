@@ -29,7 +29,6 @@ void *ioSchedule()
         // add one second to curr time
         ts.tv_sec += 1;
 
-        //printf("[IO]   ioSchedule() about to call sem_timedwait()\n");
         // wait until sem_read is avaible or 1 second passes (should be since sem_read is init. with 1 )
         while ((s = sem_timedwait(&sem_io, &ts)) == -1 && errno == EINTR)
             continue; /* Restart if interrupted by handler */
@@ -45,24 +44,14 @@ void *ioSchedule()
                 exit(EXIT_FAILURE);
             }
         }
-        else
-        {
-            //printf("[IO]   io sem_timedwait() succeeded\n");
-        }
+
         ioBusy = 1;
         if (isEmptyQ(io_q_head) == 1)
         {
-            //printf("    [attempting to pop from ioQ]\n");
-            //printf("        [BEFORE] "); printQ(&io_q_head);
             struct PCB *temp = popQ(&io_q_head);
-            //printf("        [AFTER] "); printQ(&io_q_head);
-            //printf("[IO]   IO burst for: %d\n", temp->IOBurst[temp->ioIndex]);
             usleep(temp->IOBurst[temp->ioIndex]);
             temp->ioIndex++;
-            //printf("    [attempting to push to readyQ] %p\n", temp);
-            //printf("        [BEFORE] "); printQ(&ready_q_head);
             push(&ready_q_head, temp);
-            //printf("        [AFTER] ");  printQ(&ready_q_head);
         }
         ioBusy = 0;
         // increment sem_cpu, allows cpuSchedule to proceed
