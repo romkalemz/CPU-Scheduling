@@ -150,7 +150,7 @@ int checkArgInput(int argc, char** argv) {
                 return 1;
             }
             if(arg.quantum <= 0){
-                printf("Quantum input must larger than zero.");
+                printf("\nQuantum input must be larger than zero.\n");
             }
         }
         else if(strcmp(argv[i], "-input") == 0) {
@@ -167,7 +167,8 @@ int checkArgInput(int argc, char** argv) {
     }
     if(isQuantum == 0){
         arg.quantum = 0;
-    } else if(isRR && arg.quantum <= 0){
+    } 
+    if(isRR == 1 && arg.quantum <= 0){
         printf("\nERROR - INPROPER ARGUMENTS! -\n");
         printf("Please input: \"-alg [FIFO | SJF | PR | RR] [-quantum [integer(ms)]] -input [file_name]\"\n\n");
         return 1;

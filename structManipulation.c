@@ -37,7 +37,7 @@ int isEmptyQ(struct PCB *first){
     }
     return 1;
 }
-
+// used to print all of the nodes of the inserted queue identified as "head"
 void printQ(struct PCB **head) {
     if(*head != NULL)
         printf("{ ID: %i, TotalBurstTime: %i, Priority: %i }", (*head)->ID, (*head)->totalBurstTime, (*head)->priority);
@@ -57,7 +57,6 @@ void printQ(struct PCB **head) {
     printf("\n");
     return;
 }
-
 void printNULL() {
     printf("{ NULL }");
 }
