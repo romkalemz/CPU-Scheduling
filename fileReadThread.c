@@ -34,6 +34,7 @@ void *fileRead(void *args)
                 proc_command = true;
                 // create PCB structure
                 curr_pcb = createPCB(line_count);
+                curr_pcb -> quantumTime = arg->quantum;
                 line_count++;
             }
 
@@ -74,8 +75,10 @@ void *fileRead(void *args)
             // otherwise its the list of bursts
             else
             {
-                if (i % 2 == 0) // even numbers are CPU
+                if (i % 2 == 0){
                     curr_pcb->CPUBurst[i / 2] = atoi(word);
+                    curr_pcb ->cpuTime += atoi(word);
+                } // even numbers are CPU
                 else // odd numbers are IO
                     curr_pcb->IOBurst[i / 2] = atoi(word);
                 total_burst_time += atoi(word);
@@ -110,6 +113,7 @@ void *fileRead(void *args)
             push(&ready_q_head, curr_pcb);
             //printf("        [AFTER] ");  printQ(&ready_q_head);
             // allow sem_cpu to proceed
+            
             if (sem_post(&sem_cpu) == -1)
             {
                 fprintf(stderr, "error: %s\n", strerror(errno));

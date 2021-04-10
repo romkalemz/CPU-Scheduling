@@ -112,6 +112,8 @@ void printPerformance() {
 
 // checks the inputted command line arguments and parses necessary info
 int checkArgInput(int argc, char** argv) {
+    int isQuantum = 0;
+    int isRR = 0;
     if(argc > 7 || argc < 5) {
         printf("\nERROR - INPROPER ARGUMENTS! -\n");
         printf("Please input: \"-alg [FIFO | SJF | PR | RR] [-quantum [integer(ms)]] -input [file_name]\"\n\n");
@@ -132,9 +134,13 @@ int checkArgInput(int argc, char** argv) {
                 strcpy(arg.algo, argv[i+1]);
                 strcat(arg.algo, &end);
            }
+           if(strcmp(argv[i+1], "RR") == 0){
+               isRR = 1;
+           }
         } 
         else if(strcmp(argv[i], "-quantum") == 0) {
             // check if quantum tag an int, not a LONG_MIN, and not a LONG_MAX
+            isQuantum = 1;
             errno = 0;
             char* temp = argv[i+2]; // use a temp endptr to check if no numbers were detected
             arg.quantum = strtol(argv[i+1], &temp, 10); // convert string to int
@@ -142,6 +148,9 @@ int checkArgInput(int argc, char** argv) {
                 printf("\nERROR - INPROPER ARGUMENTS! -\n");
                 printf("Quantum input \"%s\" is not a valid input!\n\n", argv[i+1]);
                 return 1;
+            }
+            if(arg.quantum <= 0){
+                printf("Quantum input must larger than zero.");
             }
         }
         else if(strcmp(argv[i], "-input") == 0) {
@@ -155,6 +164,13 @@ int checkArgInput(int argc, char** argv) {
                 strcat(arg.file_name, &end);
             }
         }
+    }
+    if(isQuantum == 0){
+        arg.quantum = 0;
+    } else if(isRR && arg.quantum <= 0){
+        printf("\nERROR - INPROPER ARGUMENTS! -\n");
+        printf("Please input: \"-alg [FIFO | SJF | PR | RR] [-quantum [integer(ms)]] -input [file_name]\"\n\n");
+        return 1;
     }
     
     return 0;
