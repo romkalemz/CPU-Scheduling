@@ -3,7 +3,7 @@
 // global structure for easy access in main thread
 struct ARG arg;
 struct PCB *ready_q_head, *io_q_head;
-sem_t sem_read, sem_cpu, sem_io;
+sem_t sem_read, sem_cpu, sem_io, sem_mutex;
 int file_read_done, cpu_sch_done;
 int cpuBusy, ioBusy;
 double elapsed, total_throughput, total_waiting_time, total_turnaround_time, total_num_processes;
@@ -26,6 +26,11 @@ int main(int argc, char** argv) {
     total_turnaround_time = 0;
     total_num_processes = 0;
     // CREATE THREE THREADS (FileRead_thread, CPU_scheduler_thread, IO_scheduler_thread)
+    if (sem_init(&sem_mutex, 0, 1) == -1)
+    {
+        fprintf(stderr, "error: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
     if (sem_init(&sem_read, 0, 1) == -1)
     {
         fprintf(stderr, "error: %s\n", strerror(errno));
@@ -67,6 +72,11 @@ int main(int argc, char** argv) {
         }
     }
     // destroy the semaphores
+    if (sem_destroy(&sem_mutex) == -1)
+    {
+        fprintf(stderr, "error: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
     if (sem_destroy(&sem_read) == -1)
     {
         fprintf(stderr, "error: %s\n", strerror(errno));

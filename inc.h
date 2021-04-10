@@ -37,7 +37,7 @@ struct PCB {
     struct PCB *prev, *next;     // pointers to prev and next PCB in a double linked list
 };
 // global variables
-extern sem_t sem_read, sem_cpu, sem_io;
+extern sem_t sem_read, sem_cpu, sem_io, sem_mutex;
 extern struct PCB *ready_q_head, *io_q_head;
 extern int file_read_done, cpu_sch_done;
 extern int cpuBusy, ioBusy;

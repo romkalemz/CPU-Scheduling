@@ -10,7 +10,14 @@ void *ioSchedule()
 
     while (1)
     {
-        if(file_read_done == 1 && cpuBusy == 0 && isEmptyQ(ready_q_head) == 0 && isEmptyQ(io_q_head) == 0){
+        if (sem_post(&sem_mutex) == -1)
+        {
+            fprintf(stderr, "error: %s\n", strerror(errno));
+            exit(EXIT_FAILURE);
+        }
+        if (file_read_done == 1 && cpuBusy == 0 && isEmptyQ(ready_q_head) == 0 && isEmptyQ(io_q_head) == 0)
+        {
+            ioBusy = 0;
             break;
         }
         // get system clock set it to ts var
@@ -43,7 +50,7 @@ void *ioSchedule()
             //printf("[IO]   io sem_timedwait() succeeded\n");
         }
         ioBusy = 1;
-        if(isEmptyQ(io_q_head) == 1) 
+        if (isEmptyQ(io_q_head) == 1)
         {
             //printf("    [attempting to pop from ioQ]\n");
             //printf("        [BEFORE] "); printQ(&io_q_head);

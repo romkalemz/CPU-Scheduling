@@ -101,6 +101,11 @@ void *fileRead(void *args)
             //push pcb into ready_q
             //printf("    [attempting to push to readyQ] %p\n", curr_pcb);
             //printf("        [BEFORE] "); printQ(&ready_q_head);
+            if (sem_wait(&sem_read) == -1)
+            {
+                perror("sem_wait: sem_read");
+                exit(1);
+            }
             clock_gettime(CLOCK_MONOTONIC, &curr_pcb->ts_begin);
             push(&ready_q_head, curr_pcb);
             //printf("        [AFTER] ");  printQ(&ready_q_head);
